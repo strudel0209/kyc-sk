@@ -46,7 +46,7 @@ The system consists of these key components:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/kyc-sk.git
+   git clone https://github.com/strudel0209/kyc-sk.git
    cd kyc-sk
    ```
 
@@ -76,6 +76,27 @@ The system consists of these key components:
    FR_KEY=your-document-intelligence-key
    ```
 
+5. If you plan to test Azure Functions locally, create a `local.settings.json` file in the `functions` directory:
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+       "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+       "FUNCTIONS_WORKER_RUNTIME": "python",
+       "AZURE_OPENAI_ENDPOINT": "your-endpoint-url",
+       "AZURE_OPENAI_API_KEY": "your-api-key",
+       "AZURE_OPENAI_DEPLOYMENT_NAME": "your-deployment-name",
+       "BLOB_CONNECTION_STRING": "your-blob-connection-string",
+       "FR_ENDPOINT": "your-document-intelligence-endpoint",
+       "FR_KEY": "your-document-intelligence-key"
+     },
+     "Host": {
+       "LocalHttpPort": 7071,
+       "CORS": "*"
+     }
+   }
+   ```
+
 ## Configuration
 
 The system can be configured to run locally with in-memory storage or use Azure Blob Storage for document processing:
@@ -97,9 +118,9 @@ The system can be configured to run locally with in-memory storage or use Azure 
 
 ## Usage
 
-### Running Locally
+### Running Locally for Testing
 
-You can run the system locally using the provided `main.py` script:
+You can run the system locally using the provided `main.py` script for basic testing and development:
 
 ```bash
 python main.py
@@ -111,7 +132,30 @@ This will:
 3. Process a sample bank statement
 4. Output the extracted information as JSON
 
-### Running with Azure Functions
+This approach is useful for quick testing of the core system functionality but doesn't simulate the real-time document processing workflow.
+
+### Running Azure Functions Locally
+
+For a more complete testing experience that simulates the real-time processing workflow:
+
+1. Install the Azure Functions Core Tools if you haven't already:
+   ```bash
+   npm install -g azure-functions-core-tools@4 --unsafe-perm true
+   ```
+
+2. Navigate to the functions directory:
+   ```bash
+   cd functions
+   ```
+
+3. Start the function app locally:
+   ```bash
+   func start
+   ```
+
+This will start the Azure Functions runtime locally, which will poll for new documents uploaded to your configured blob storage container. When a document is uploaded to the "kyc-documents" container, the function will automatically trigger, process the document, and store the results in the "kyc-results" container.
+
+### Running with Azure Functions in Production
 
 The system can be deployed as an Azure Function that triggers when documents are uploaded to a Blob Storage container:
 
